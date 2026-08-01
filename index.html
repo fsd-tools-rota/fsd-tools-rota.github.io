@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>消防 Rota日曆生成器</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f3f5f8;
+    --card: #ffffff;
+    --border: #e2e6ed;
+    --text: #1a2233;
+    --text-muted: #667085;
+    --accent: #d7263d;
+    --accent-dark: #ac1e30;
+    --accent-soft: #fdeaec;
+    --teamA: #d7263d;
+    --teamA-soft: #fdeaec;
+    --teamB: #1d6fb8;
+    --teamB-soft: #e8f2fb;
+    --teamC: #d4a017;
+    --teamC-soft: #fbf3da;
+    --highlight-bg: #fdeaba;
+    --highlight-text: #7a4b06;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; }
+  html {
+    background: #f3f5f8;
+    color-scheme: light;
+  }
+  body {
+    font-family: -apple-system, "PingFang HK", "Microsoft JhengHei", "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px 14px 60px;
+    line-height: 1.6;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  header {
+    padding: 4px 4px 22px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--text-muted);
+  }
+
+  /* team legend chips */
+  .team-legend {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .team-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px 5px 8px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .team-chip .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .team-chip.A .dot { background: var(--teamA); }
+  .team-chip.B .dot { background: var(--teamB); }
+  .team-chip.C .dot { background: var(--teamC); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 20px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(20,25,40,0.04);
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .step-num {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--text);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .card-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: -6px 0 14px 34px;
+  }
+
+  .team-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .team-option {
+    position: relative;
+    flex: 1 1 90px;
+  }
+  .team-option input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .team-option .box {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all .12s ease;
+    user-select: none;
+  }
+  .team-option input:checked + .box {
+    color: #fff;
+    outline: 3px solid #1f9d55;
+    outline-offset: 2px;
+  }
+  .team-option.A input:checked + .box { background: var(--teamA); border-color: var(--teamA); }
+  .team-option.B input:checked + .box { background: var(--teamB); border-color: var(--teamB); }
+  .team-option.C input:checked + .box { background: var(--teamC); border-color: var(--teamC); }
+  #teamCard.card-error {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .team-option input:focus-visible + .box {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .date-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .date-field {
+    flex: 1 1 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .date-field label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  input[type="date"], input[type="text"], select {
+    padding: 10px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    width: 100%;
+  }
+  input[type="date"]:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .preset-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .preset-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .helper-text {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 13px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1 1 auto;
+    transition: background .12s ease;
+  }
+  button:hover { background: var(--accent-dark); }
+  button:active { transform: translateY(1px); }
+  button:disabled { cursor: default; transform: none; }
+  button.secondary {
+    background: #fff;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  button.secondary:hover { border-color: var(--text); background: #fafafa; }
+
+  #status {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--text);
+    white-space: pre-line;
+    background: #e9f9ef;
+    border: 1px solid #c7ecd4;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: none;
+  }
+  #status.show { display: block; }
+  #status.error {
+    background: var(--accent-soft);
+    border-color: #f6c3ca;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-top: 4px;
+  }
+  .note b { color: var(--text); }
+
+  .preview-wrap {
+    overflow-x: auto;
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+  }
+  table.preview {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #fff;
+  }
+  table.preview th, table.preview td {
+    border-bottom: 1px solid var(--border);
+    padding: 7px 10px;
+    text-align: left;
+    white-space: nowrap;
+    background: #fff;
+    color: var(--text);
+  }
+  table.preview th {
+    background: #fafbfc;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  table.preview tr:last-child td { border-bottom: none; }
+  .preview-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    margin-top: 18px;
+  }
+  .preview-section-title .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+  }
+  tr.is-mine td {
+    background: var(--highlight-bg) !important;
+    color: var(--highlight-text);
+    font-weight: 700;
+  }
+
+  @media (max-width: 480px) {
+    .btn-row { flex-direction: column; }
+    button { width: 100%; }
+  }
+</style>
+<script data-goatcounter="https://rotatools.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>消防 Rota 日曆生成器</h1>
+    <div class="subtitle">A / B / C 隊三日一轉 Rota Number 週期，離線單一檔案，自訂年份範圍即時生成 .ics</div>
+    <div class="team-legend">
+      <span class="team-chip A"><span class="dot"></span>A隊</span>
+      <span class="team-chip B"><span class="dot"></span>B隊</span>
+      <span class="team-chip C"><span class="dot"></span>C隊</span>
+    </div>
+  </header>
+
+  <div class="card" style="border:1.5px solid #c9dcef;background:#f6faff;">
+    <div class="card-head">
+      <div class="step-num" style="background:#1d6fb8;">🔔</div>
+      <div class="card-title">直接訂閱（最簡單）</div>
+    </div>
+    <div class="card-desc" style="margin-left:0;">點選下方連結，日曆將自動同步，無須另行匯入。惟此屬「訂閱」性質，並不適用於希望自行編輯或標記個人 Rota 之同事。</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <a href="https://calendar.google.com/calendar/ical/2d087d8682856fe6211bd7f317819a051e4c4e337205bf3abc7413c82038c1ee%40group.calendar.google.com/public/basic.ics" target="_blank" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
+        <span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--teamA);display:inline-block;"></span> A隊 — 訂閱日曆
+      </a>
+      <a href="https://calendar.google.com/calendar/ical/106a2efc3f1c0f6d63818b24da91763e023d8236dfbdf2c8da4bf34a73242f9b%40group.calendar.google.com/public/basic.ics" target="_blank" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
+        <span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--teamB);display:inline-block;"></span> B隊 — 訂閱日曆
+      </a>
+      <a href="https://calendar.google.com/calendar/ical/fcbf7a5aeff45a508ee125a37a74670ca47ba88ba34ccef576624336a020eb0e%40group.calendar.google.com/public/basic.ics" target="_blank" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
+        <span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--teamC);display:inline-block;"></span> C隊 — 訂閱日曆
+      </a>
+    </div>
+  </div>
+
+  <div class="card" id="teamCard">
+    <div class="card-head">
+      <div class="step-num">1</div>
+      <div class="card-title">選擇隊別</div>
+    </div>
+    <div class="card-desc">可同時選取多隊，會分別生成獨立檔案</div>
+    <div class="team-row">
+      <label class="team-option A">
+        <input type="checkbox" value="A" class="team-cb">
+        <div class="box">A隊</div>
+      </label>
+      <label class="team-option B">
+        <input type="checkbox" value="B" class="team-cb">
+        <div class="box">B隊</div>
+      </label>
+      <label class="team-option C">
+        <input type="checkbox" value="C" class="team-cb">
+        <div class="box">C隊</div>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">2</div>
+      <div class="card-title">選擇日期範圍</div>
+    </div>
+    <div class="card-desc">開始及結束日期，公式可無限延伸，不受原始資料年份所限</div>
+    <div class="date-row">
+      <div class="date-field">
+        <label for="startDate">開始日期</label>
+        <input type="date" id="startDate" value="2016-07-18">
+      </div>
+      <div class="date-field">
+        <label for="endDate">結束日期</label>
+        <input type="date" id="endDate" value="2050-12-31">
+      </div>
+    </div>
+    <div class="preset-row">
+      <button type="button" class="preset-btn" data-start="2026-01-01" data-end="2036-12-31">2026 – 2036</button>
+      <button type="button" class="preset-btn" data-start="2036-01-01" data-end="2046-12-31">2036 – 2046</button>
+      <button type="button" class="preset-btn" data-start="2046-01-01" data-end="2056-12-31">2046 – 2056</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">3</div>
+      <div class="card-title">標記個人 Rota Number（可選）</div>
+    </div>
+    <div class="card-desc">如不需要標記，可留空並直接跳至下一步</div>
+    <div class="helper-text">請選取個人代號（number 加字母，例如 5d）。屬於閣下之日子，預覽表及下載檔案內均會標示為「(Rota)」。</div>
+    <select id="myNumber">
+      <option value="">-- 不標記 --</option>
+    </select>
+  </div>
+
+  <div class="btn-row">
+    <button id="generateBtn" onclick="generateAndDownload()">生成並下載 .ics</button>
+    <button class="secondary" onclick="previewFirst()">預覽頭 36 項</button>
+  </div>
+
+  <div id="status"></div>
+  <div id="previewArea"></div>
+
+  <div class="note">
+    <b>使用說明</b><br><br>
+    <b>1. 日期範圍：</b>建議每次選取約十年範圍（可用上方快捷按鈕），避免一次生成年期過長，以免檔案過大，匯入手機時反應緩慢。<br><br>
+    <b>2. 匯入方法：</b>下載 .ics 檔案後，於手機開啟該檔案，選擇「加入所有活動」。若未見此選項，通常表示同一批事件早前已經匯入，毋須重複操作。<br><br>
+    <b>3. 「(Rota)」標記：</b>若於步驟三選取個人代號，屬於閣下之日子將於標題後加上「(Rota)」，以便識別。
+  </div>
+
+  <div class="note">
+    <b>4. 刪除方法</b><br>
+    <span style="font-size:12px;color:var(--text-muted);">建議匯入時選擇新開之獨立日曆，而非個人主日曆，日後如需刪除，只需於日曆設定內移除該獨立日曆即可，適用於任何裝置。命名建議如下：</span>
+    <div style="overflow-x:auto;margin-top:8px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <tr style="background:#fafbfc;">
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text-muted);font-weight:600;">情況</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text-muted);font-weight:600;">建議名稱</th>
+        </tr>
+        <tr>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border);">單一隊別</td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border);">B隊 Rota</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 8px;">連年份範圍</td>
+          <td style="padding:6px 8px;">B隊 Rota 2026-2036</td>
+        </tr>
+      </table>
+    </div>
+    <br>
+    <span style="font-size:12px;color:var(--text-muted);">以下為兩種裝置之補充做法：</span><br><br>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <span style="font-size:12px;font-weight:700;background:#eef0f4;color:var(--text);border-radius:999px;padding:4px 10px;">📱 iPhone</span>
+    </div>
+    若事件已匯入個人主日曆，可使用「捷徑」App，建立「尋找日曆事件」（條件：地點等於 Rota），並接續「刪除事件」動作，即可一次過清除，不影響個人其他行程。<br><br>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <span style="font-size:12px;font-weight:700;background:#eef0f4;color:var(--text);border-radius:999px;padding:4px 10px;">🤖 Android</span>
+    </div>
+    「捷徑」App 為 iPhone 專屬功能，Android 裝置未能使用。若事件已匯入個人主日曆，可於 Google 日曆 App 內搜尋「Rota」，逐項刪除；惟未能一次過批量刪除，事件數量較多時請預留時間處理。
+  </div>
+
+  <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:8px 0 4px;">
+    如有任何意見或發現問題，歡迎透過 <a href="https://forms.gle/VX6dDSqHRRJDCuFZA" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600;">意見表單</a> 反映。
+  </div>
+</div>
+
+<script>
+const TEAM_COLOR = { A: "#d7263d", B: "#1d6fb8", C: "#1f9d55" };
+
+const CYCLE = {
+  A: { anchor: "2016-07-18", template: ["A1_9d","A2_1a","A3_2a","A4_3a","A5_4a","A6_5a","A7_6a","A8_7a","A9_8a","A1_9a","A2_1b","A3_2b","A4_3b","A5_4b","A6_5b","A7_6b","A8_7b","A9_8b","A1_9b","A2_1c","A3_2c","A4_3c","A5_4c","A6_5c","A7_6c","A8_7c","A9_8c","A1_9c","A2_1d","A3_2d","A4_3d","A5_4d","A6_5d","A7_6d","A8_7d","A9_8d"] },
+  B: { anchor: "2016-07-19", template: ["B1_9d","B2_1a","B3_2a","B4_3a","B5_4a","B6_5a","B7_6a","B8_7a","B9_8a","B1_9a","B2_1b","B3_2b","B4_3b","B5_4b","B6_5b","B7_6b","B8_7b","B9_8b","B1_9b","B2_1c","B3_2c","B4_3c","B5_4c","B6_5c","B7_6c","B8_7c","B9_8c","B1_9c","B2_1d","B3_2d","B4_3d","B5_4d","B6_5d","B7_6d","B8_7d","B9_8d"] },
+  C: { anchor: "2016-07-20", template: ["C1_9d","C2_1a","C3_2a","C4_3a","C5_4a","C6_5a","C7_6a","C8_7a","C9_8a","C1_9a","C2_1b","C3_2b","C4_3b","C5_4b","C6_5b","C7_6b","C8_7b","C9_8b","C1_9b","C2_1c","C3_2c","C4_3c","C5_4c","C6_5c","C7_6c","C8_7c","C9_8c","C1_9c","C2_1d","C3_2d","C4_3d","C5_4d","C6_5d","C7_6d","C8_7d","C9_8d"] }
+};
+
+function parseDate(s) {
+  const [y,m,d] = s.split("-").map(Number);
+  return new Date(Date.UTC(y, m-1, d));
+}
+function fmtDate(d) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth()+1).padStart(2,"0");
+  const day = String(d.getUTCDate()).padStart(2,"0");
+  return `${y}${m}${day}`;
+}
+function addDays(d, n) {
+  return new Date(d.getTime() + n*86400000);
+}
+
+// 生成某隊喺 [start, end] 範圍內嘅事件列表 {date, label}
+function buildEvents(team, start, end) {
+  const cfg = CYCLE[team];
+  const anchor = parseDate(cfg.anchor);
+  const events = [];
+  let diffDays = Math.round((start - anchor) / 86400000);
+  let rem = ((diffDays % 3) + 3) % 3;
+  let cur = rem === 0 ? start : addDays(start, 3 - rem);
+  while (cur <= end) {
+    let idxOffset = Math.round((cur - anchor) / 86400000) / 3;
+    idxOffset = ((idxOffset % 36) + 36) % 36;
+    const label = cfg.template[idxOffset];
+    events.push({ date: new Date(cur), label });
+    cur = addDays(cur, 3);
+  }
+  return events;
+}
+
+function makeICS(team, events, myDigit, myLetter) {
+  const now = new Date();
+  const stamp = now.toISOString().replace(/[-:]/g,"").split(".")[0] + "Z";
+  let lines = [];
+  lines.push("BEGIN:VCALENDAR");
+  lines.push("PRODID:-//HKFSD Rota Generator//EN");
+  lines.push("VERSION:2.0");
+  lines.push("CALSCALE:GREGORIAN");
+  lines.push("METHOD:PUBLISH");
+  lines.push(`X-WR-CALNAME:HKFSD ${team}隊 Rota`);
+  lines.push("X-WR-TIMEZONE:Asia/Hong_Kong");
+  events.forEach((ev, i) => {
+    const dstart = fmtDate(ev.date);
+    const dend = fmtDate(addDays(ev.date, 1));
+    const uid = `rota-${team}-${dstart}-gen@hkfsd-rota`;
+    const isMine = matchesMySelection(ev.label, myDigit, myLetter);
+    const summary = isMine ? `${ev.label}(Rota)` : ev.label;
+    lines.push("BEGIN:VEVENT");
+    lines.push(`DTSTART;VALUE=DATE:${dstart}`);
+    lines.push(`DTEND;VALUE=DATE:${dend}`);
+    lines.push(`DTSTAMP:${stamp}`);
+    lines.push(`UID:${uid}`);
+    lines.push("CLASS:PUBLIC");
+    lines.push(`CREATED:${stamp}`);
+    lines.push(`LAST-MODIFIED:${stamp}`);
+    lines.push("LOCATION:Rota");
+    lines.push("SEQUENCE:0");
+    lines.push("STATUS:CONFIRMED");
+    lines.push(`SUMMARY:${summary}`);
+    lines.push("TRANSP:TRANSPARENT");
+    lines.push("END:VEVENT");
+  });
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
+}
+
+// 判斷某個event label係咪屬於揀選咗嘅「number+字母」呢位同事
+function matchesMySelection(label, digit, letter) {
+  if (!digit || !letter) return false;
+  const m = label.match(/^[A-Z](\d)_(\d)([a-d])$/);
+  if (!m) return false;
+  const [, X, Y, L] = m;
+  return X === digit || (Y === digit && L === letter);
+}
+
+function getSelectedTeams() {
+  return Array.from(document.querySelectorAll(".team-cb"))
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+}
+
+function showStatus(text, isError) {
+  const status = document.getElementById("status");
+  status.textContent = text;
+  status.className = "show" + (isError ? " error" : "");
+}
+
+function flagTeamCard() {
+  const card = document.getElementById("teamCard");
+  card.classList.add("card-error");
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => card.classList.remove("card-error"), 1600);
+}
+
+function generateAndDownload() {
+  const teams = getSelectedTeams();
+  const startStr = document.getElementById("startDate").value;
+  const endStr = document.getElementById("endDate").value;
+  const mySelection = document.getElementById("myNumber").value;
+  let myDigit = "", myLetter = "";
+  if (mySelection) {
+    const mm = mySelection.match(/^(\d)([a-d])$/);
+    if (mm) { myDigit = mm[1]; myLetter = mm[2]; }
+  }
+
+  if (!teams.length) { showStatus("請至少選取一隊。", true); flagTeamCard(); return; }
+  if (!startStr || !endStr) { showStatus("請填寫開始及結束日期。", true); return; }
+
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  if (start > end) { showStatus("開始日期不可遲於結束日期。", true); return; }
+
+  const btn = document.getElementById("generateBtn");
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "生成緊…";
+  btn.style.opacity = "0.7";
+
+  // 用 setTimeout 令瀏覽器有機會先畫返「生成緊…」個狀態，先至做運算
+  setTimeout(() => {
+    let msgs = [];
+    teams.forEach(team => {
+      const events = buildEvents(team, start, end);
+      const ics = makeICS(team, events, myDigit, myLetter);
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ROTA_${team}隊_${startStr}_至_${endStr}.ics`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      msgs.push(`${team}隊：已生成 ${events.length} 個 event（${startStr} 至 ${endStr}）${mySelection ? `，已標記「${mySelection}」之 Rota 日子` : ""}`);
+      if (window.goatcounter && window.goatcounter.count) {
+        window.goatcounter.count({ path: `generate-${team}`, title: `生成 ${team}隊`, event: true });
+      }
+    });
+    showStatus(msgs.join("\n"), false);
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+    btn.style.opacity = "";
+  }, 30);
+}
+
+function previewFirst() {
+  const teams = getSelectedTeams();
+  const startStr = document.getElementById("startDate").value;
+  const endStr = document.getElementById("endDate").value;
+  const mySelection = document.getElementById("myNumber").value;
+  let myDigit = "", myLetter = "";
+  if (mySelection) {
+    const mm = mySelection.match(/^(\d)([a-d])$/);
+    if (mm) { myDigit = mm[1]; myLetter = mm[2]; }
+  }
+  const previewArea = document.getElementById("previewArea");
+
+  if (!teams.length || !startStr || !endStr) {
+    previewArea.innerHTML = "";
+    showStatus("請先選取隊別及日期範圍。", true);
+    if (!teams.length) flagTeamCard();
+    return;
+  }
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+
+  let html = "";
+  if (mySelection) {
+    html += `<p style="font-size:12px;color:var(--text-muted);margin-top:14px;">已選取「${mySelection}」— 標黃部分為屬於閣下之日子</p>`;
+  }
+  teams.forEach(team => {
+    const events = buildEvents(team, start, end).slice(0, 36);
+    const color = TEAM_COLOR[team];
+    html += `<div class="preview-section-title"><span class="dot" style="background:${color}"></span>${team}隊　頭 36 項</div>`;
+    html += `<div class="preview-wrap"><table class="preview"><tr><th>日期</th><th>Number 標籤</th></tr>`;
+    events.forEach(ev => {
+      const y = ev.date.getUTCFullYear();
+      const m = String(ev.date.getUTCMonth()+1).padStart(2,"0");
+      const d = String(ev.date.getUTCDate()).padStart(2,"0");
+      const isMine = matchesMySelection(ev.label, myDigit, myLetter);
+      const labelText = isMine ? `${ev.label}(Rota)` : ev.label;
+      html += `<tr class="${isMine ? 'is-mine' : ''}"><td>${y}-${m}-${d}</td><td>${labelText}</td></tr>`;
+    });
+    html += `</table></div>`;
+  });
+  previewArea.innerHTML = html;
+  showStatus("已完成預覽（尚未下載，請按上方「生成並下載」以取得檔案）。", false);
+  previewArea.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// 日期預設按鈕
+document.querySelectorAll(".preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.getElementById("startDate").value = btn.dataset.start;
+    document.getElementById("endDate").value = btn.dataset.end;
+  });
+});
+
+// 頁面載入時填滿 1a 至 9d 共36個選項
+(function populateMyNumberSelect(){
+  const sel = document.getElementById("myNumber");
+  const letters = ["a","b","c","d"];
+  for (let n = 1; n <= 9; n++) {
+    letters.forEach(l => {
+      const opt = document.createElement("option");
+      opt.value = `${n}${l}`;
+      opt.textContent = `${n}${l}`;
+      sel.appendChild(opt);
+    });
+  }
+})();
+</script>
+</body>
+</html>
