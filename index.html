@@ -336,6 +336,34 @@
     font-weight: 700;
   }
 
+  .yt-month { margin-top: 16px; }
+  .yt-month-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .yt-table-wrap { overflow-x: auto; }
+  .yt-table-wrap table { border-collapse: collapse; font-size: 10.5px; white-space: nowrap; background:#fff; }
+  .yt-table-wrap th, .yt-table-wrap td {
+    border: 1px solid var(--border); padding: 3px 4px; text-align: center; min-width: 18px; background:#fff;
+  }
+  .yt-table-wrap th { background: var(--bg); font-weight: 700; color: var(--text-muted); font-size: 10px; }
+  .yt-table-wrap td.yt-we { background: #fafafa; color: var(--accent); }
+  .yt-table-wrap td.yt-holiday { background: var(--accent); color: #fff !important; font-weight: 700; }
+  .yt-table-wrap tr.yt-num1 td, .yt-table-wrap tr.yt-num2 td { color: #7a4b06; font-size: 9.5px; }
+  .yt-table-wrap td.yt-lbl { background: var(--highlight-bg); font-weight: 700; }
+
+  @media print {
+    @page { size: A4 landscape; margin: 8mm; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+    .no-print { display: none !important; }
+    body, .container { margin: 0; padding: 0; background: #fff; max-width: none; }
+    .card { border: none !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; }
+    .yt-month { break-inside: avoid; page-break-inside: avoid; margin-top: 10px; }
+    .yt-table-wrap { overflow: visible !important; }
+    .yt-table-wrap table {
+      width: 100% !important; table-layout: fixed; white-space: normal;
+      font-size: 7.5px !important;
+    }
+    .yt-table-wrap th, .yt-table-wrap td { padding: 1.5px 1px !important; min-width: 0 !important; }
+  }
+
   @media (max-width: 480px) {
     .btn-row { flex-direction: column; }
     button { width: 100%; }
@@ -345,7 +373,7 @@
 </head>
 <body>
 <div class="container">
-  <header>
+  <header class="no-print">
     <h1>消防 Rota 日曆生成器</h1>
     <div class="subtitle">A / B / C 隊三日一轉 Rota Number 週期，離線單一檔案，自訂年份範圍即時生成 .ics</div>
     <div class="team-legend">
@@ -355,7 +383,7 @@
     </div>
   </header>
 
-  <div class="card" style="border:1.5px solid #c9dcef;background:#f6faff;">
+  <div class="card no-print" style="border:1.5px solid #c9dcef;background:#f6faff;">
     <div class="card-head">
       <div class="step-num" style="background:#1d6fb8;">🔔</div>
       <div class="card-title">直接訂閱（最快捷）</div>
@@ -374,13 +402,13 @@
     </div>
   </div>
 
-  <div style="display:flex;align-items:center;gap:12px;margin:26px 4px 14px;">
+  <div class="no-print" style="display:flex;align-items:center;gap:12px;margin:26px 4px 14px;">
     <div style="flex:1;height:1px;background:var(--border);"></div>
     <div style="font-size:12px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;white-space:nowrap;">自訂生成日曆</div>
     <div style="flex:1;height:1px;background:var(--border);"></div>
   </div>
 
-  <div class="card" id="teamCard">
+  <div class="card no-print" id="teamCard">
     <div class="card-head">
       <div class="step-num">1</div>
       <div class="card-title">選擇隊別</div>
@@ -402,7 +430,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card no-print">
     <div class="card-head">
       <div class="step-num">2</div>
       <div class="card-title">選擇日期範圍</div>
@@ -419,13 +447,13 @@
       </div>
     </div>
     <div class="preset-row">
-      <button type="button" class="preset-btn" data-start="2026-01-01" data-end="2036-12-31">2026 – 2036</button>
-      <button type="button" class="preset-btn" data-start="2036-01-01" data-end="2046-12-31">2036 – 2046</button>
-      <button type="button" class="preset-btn" data-start="2046-01-01" data-end="2056-12-31">2046 – 2056</button>
+      <button type="button" class="preset-btn" data-start="2026-01-01" data-end="2031-12-31">5年（2026 – 2031）</button>
+      <button type="button" class="preset-btn" data-start="2026-01-01" data-end="2036-12-31">10年（2026 – 2036）</button>
+      <button type="button" class="preset-btn" data-start="2026-01-01" data-end="2046-12-31">20年（2026 – 2046）</button>
     </div>
   </div>
 
-  <div class="card">
+  <div class="card no-print">
     <div class="card-head">
       <div class="step-num">3</div>
       <div class="card-title">標記個人 Rota Number（可選）</div>
@@ -437,22 +465,22 @@
     </select>
   </div>
 
-  <div class="btn-row">
+  <div class="btn-row no-print">
     <button id="generateBtn" onclick="generateAndDownload()">生成並下載 .ics</button>
     <button class="secondary" onclick="previewFirst()">預覽頭 36 項</button>
   </div>
 
-  <div id="status"></div>
-  <div id="previewArea"></div>
+  <div id="status" class="no-print"></div>
+  <div id="previewArea" class="no-print"></div>
 
-  <div class="note">
+  <div class="note no-print">
     <b>使用說明</b><br><br>
     <b>1. 日期範圍：</b>建議每次選取約十年範圍（可用上方快捷按鈕），避免一次生成年期過長，以免檔案過大，匯入手機時反應緩慢。<br><br>
     <b>2. 匯入方法：</b>下載 .ics 檔案後，於手機開啟該檔案，選擇「加入所有活動」。若未見此選項，通常表示同一批事件早前已經匯入，毋須重複操作。<br><br>
     <b>3. 「(Rota)」標記：</b>若於步驟三選取個人代號，屬於閣下之日子將於標題後加上「(Rota)」，以便識別。
   </div>
 
-  <div class="note">
+  <div class="note no-print">
     <b>4. 刪除方法</b><br>
     <span style="font-size:12px;color:var(--text-muted);">建議匯入時選擇新開之獨立日曆，而非個人主日曆，日後如需刪除，只需於日曆設定內移除該獨立日曆即可，適用於任何裝置。命名建議如下：</span>
     <div style="overflow-x:auto;margin-top:8px;">
@@ -483,7 +511,32 @@
     「捷徑」App 為 iPhone 專屬功能，Android 裝置未能使用。若事件已匯入個人主日曆，可於 Google 日曆 App 內搜尋「Rota」，逐項刪除；惟未能一次過批量刪除，事件數量較多時請預留時間處理。
   </div>
 
-  <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:8px 0 4px;">
+  <div class="no-print" style="display:flex;align-items:center;gap:12px;margin:26px 4px 14px;">
+    <div style="flex:1;height:1px;background:var(--border);"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;white-space:nowrap;">年曆總表（參考）</div>
+    <div style="flex:1;height:1px;background:var(--border);"></div>
+  </div>
+
+  <div class="card" style="border:1.5px solid #e5d9c3;background:#fffdf7;">
+    <div class="card-head no-print">
+      <div class="step-num" style="background:#b8860b;">📅</div>
+      <div class="card-title">生成年曆總表</div>
+    </div>
+    <div class="card-desc no-print" style="margin-left:0;">以月曆形式顯示全年當值隊及 Rota 編號，Rota編號只於新一個 3 日週期開始當日顯示，格式跟隨官方輪值表。</div>
+    <div class="date-row no-print" style="align-items:flex-end;">
+      <div class="date-field" style="flex:0 0 120px;">
+        <label for="yearTableInput">年份</label>
+        <input type="text" id="yearTableInput" value="2027" inputmode="numeric" style="width:100%;">
+      </div>
+      <button type="button" onclick="renderYearTable()" style="flex:1;margin:0;">生成年曆總表</button>
+    </div>
+    <div class="no-print" style="margin-top:8px;">
+      <button type="button" class="secondary" onclick="downloadYearTablePDF()" style="width:100%;margin:0;">下載為 PDF</button>
+    </div>
+    <div id="yearTableArea"></div>
+  </div>
+
+  <div class="no-print" style="text-align:center;font-size:12px;color:var(--text-muted);padding:8px 0 4px;">
     如有任何意見或發現問題，歡迎透過 <a href="https://forms.gle/VX6dDSqHRRJDCuFZA" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600;">意見表單</a> 反映。
   </div>
 </div>
@@ -696,6 +749,115 @@ document.querySelectorAll(".preset-btn").forEach(btn => {
     document.getElementById("endDate").value = btn.dataset.end;
   });
 });
+
+// ===== 年曆總表功能 =====
+const WEEKDAY_ZH = ["日","一","二","三","四","五","六"];
+
+// 香港公眾假期（政府憲報公布），格式 MM-DD。只包含已經正式刊憲之年份。
+const PUBLIC_HOLIDAYS = {
+  2026: ["01-01","02-17","02-18","02-19","04-03","04-04","04-06","04-07","05-01","05-25","06-19","07-01","09-26","10-01","10-19","12-25","12-26"],
+  2027: ["01-01","02-06","02-08","02-09","03-26","03-27","03-29","04-05","05-01","05-13","06-09","07-01","09-16","10-01","10-08","12-25","12-27"]
+};
+
+function isPublicHoliday(year, month, day) {
+  const list = PUBLIC_HOLIDAYS[year];
+  if (!list) return false;
+  const key = `${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+  return list.includes(key);
+}
+const MONTH_NAMES_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const TEAM_ROTATION_REF = parseDate("2026-01-01"); // 2026-01-01 = B隊當值（已對官方表核實）
+const TEAM_ROTATION_ORDER = ["B","C","A"];
+
+function teamOnDate(d) {
+  const diffDays = Math.round((d - TEAM_ROTATION_REF) / 86400000);
+  const idx = ((diffDays % 3) + 3) % 3;
+  return TEAM_ROTATION_ORDER[idx];
+}
+
+// 取得某隊喺某日嘅完整 Rota 標籤（例如 "9_8d"，不含隊別前綴）
+function teamLabel(team, d) {
+  const cfg = CYCLE[team];
+  const anchor = parseDate(cfg.anchor);
+  const diffDays = Math.round((d - anchor) / 86400000);
+  const idx = ((Math.round(diffDays / 3) % 36) + 36) % 36;
+  return cfg.template[idx].slice(1); // 去除開頭嘅隊別字母
+}
+
+function daysInMonth(year, month) {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+function renderYearTable() {
+  const yearInput = document.getElementById("yearTableInput");
+  const year = parseInt(yearInput.value, 10);
+  const area = document.getElementById("yearTableArea");
+  if (!year || year < 2016 || year > 2100) {
+    area.innerHTML = `<p style="font-size:12px;color:var(--accent);margin-top:10px;">請輸入有效年份（2016 或之後）。</p>`;
+    return;
+  }
+
+  let html = "";
+  const hasHolidayData = !!PUBLIC_HOLIDAYS[year];
+  for (let m = 1; m <= 12; m++) {
+    const nd = daysInMonth(year, m);
+    const dates = [], weekdays = [], teams = [], leading = [], trailing = [], holidays = [];
+    let prevLabel = null;
+    for (let day = 1; day <= nd; day++) {
+      const d = parseDate(`${year}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`);
+      const team = teamOnDate(d);
+      const lbl = teamLabel(team, d);
+      const wd = WEEKDAY_ZH[d.getUTCDay()];
+      dates.push(day);
+      weekdays.push(wd);
+      teams.push(team);
+      holidays.push(wd !== "日" && isPublicHoliday(year, m, day));
+      if (lbl !== prevLabel) {
+        const [x, rest] = lbl.split("_");
+        leading.push(x);
+        trailing.push(rest);
+        prevLabel = lbl;
+      } else {
+        leading.push("");
+        trailing.push("");
+      }
+    }
+
+    let rows = `<tr class="yt-hdr"><th>日期</th>` + dates.map((d,i) => `<td class="${holidays[i] ? 'yt-holiday' : ''}">${d}</td>`).join("") + `</tr>`;
+    rows += `<tr class="yt-wd"><th>星期</th>` + weekdays.map((wd,i) => `<td class="${holidays[i] ? 'yt-holiday' : ((wd==='六'||wd==='日') ? 'yt-we' : '')}">${wd}</td>`).join("") + `</tr>`;
+    rows += `<tr class="yt-team"><th>當值隊</th>` + teams.map(t => `<td style="color:${TEAM_COLOR[t]};font-weight:700;">${t}</td>`).join("") + `</tr>`;
+    rows += `<tr class="yt-num1"><th rowspan="2">Rota<br>編號</th>` + leading.map(x => `<td class="${x ? 'yt-lbl' : ''}">${x}</td>`).join("") + `</tr>`;
+    rows += `<tr class="yt-num2">` + trailing.map(x => `<td class="${x ? 'yt-lbl' : ''}">${x}</td>`).join("") + `</tr>`;
+
+    html += `<div class="yt-month"><div class="yt-month-title">${MONTH_NAMES_EN[m-1]}</div><div class="yt-table-wrap"><table>${rows}</table></div></div>`;
+  }
+
+  html += `<p style="font-size:11.5px;color:var(--text-muted);margin-top:10px;">Rota編號只於新一個 3 日週期開始當日顯示，中間留空代表同一週期延續。<span style="background:var(--accent);color:#fff;padding:1px 5px;border-radius:3px;">紅底</span> 代表除星期日外之公眾假期（按政府憲報公布資料）。此表按既定公式運算生成，並非官方發放版本，正式更份請以官方公佈為準。${hasHolidayData ? '' : '<br><b style="color:var(--accent);">提示：'+year+'年公眾假期尚未經政府正式刊憲公布，故未能標記。</b>'}</p>`;
+
+  area.innerHTML = html;
+  if (window.goatcounter && goatcounter.count) {
+    goatcounter.count({ path: `yeartable-${year}`, title: `年曆總表 ${year}`, event: true });
+  }
+}
+
+function downloadYearTablePDF() {
+  const area = document.getElementById("yearTableArea");
+  if (!area.innerHTML.trim()) {
+    renderYearTable();
+  }
+  const year = document.getElementById("yearTableInput").value;
+  if (window.goatcounter && goatcounter.count) {
+    goatcounter.count({ path: `yeartable-pdf-${year}`, title: `年曆總表下載PDF ${year}`, event: true });
+  }
+  const originalTitle = document.title;
+  document.title = `${year} 年消防行動組輪值假組別表（參考）`;
+  window.onafterprint = () => {
+    document.title = originalTitle;
+    window.onafterprint = null;
+  };
+  setTimeout(() => window.print(), 80);
+  setTimeout(() => { document.title = originalTitle; }, 15000);
+}
 
 // 頁面載入時填滿 1a 至 9d 共36個選項
 (function populateMyNumberSelect(){
