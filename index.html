@@ -358,20 +358,26 @@
   <div class="card" style="border:1.5px solid #c9dcef;background:#f6faff;">
     <div class="card-head">
       <div class="step-num" style="background:#1d6fb8;">🔔</div>
-      <div class="card-title">直接訂閱（最簡單）</div>
+      <div class="card-title">直接訂閱（最快捷）</div>
     </div>
     <div class="card-desc" style="margin-left:0;">點選下方連結，日曆將自動同步，無須另行匯入。惟此屬「訂閱」性質，並不適用於希望自行編輯或標記個人 Rota 之同事。</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <a href="https://calendar.google.com/calendar/ical/2d087d8682856fe6211bd7f317819a051e4c4e337205bf3abc7413c82038c1ee%40group.calendar.google.com/public/basic.ics" target="_blank" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
+      <a href="https://calendar.google.com/calendar/ical/2d087d8682856fe6211bd7f317819a051e4c4e337205bf3abc7413c82038c1ee%40group.calendar.google.com/public/basic.ics" target="_blank" onclick="if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'subscribe-A',title:'訂閱 A隊',event:true});" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
         <span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--teamA);display:inline-block;"></span> A隊 — 訂閱日曆
       </a>
-      <a href="https://calendar.google.com/calendar/ical/106a2efc3f1c0f6d63818b24da91763e023d8236dfbdf2c8da4bf34a73242f9b%40group.calendar.google.com/public/basic.ics" target="_blank" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
+      <a href="https://calendar.google.com/calendar/ical/106a2efc3f1c0f6d63818b24da91763e023d8236dfbdf2c8da4bf34a73242f9b%40group.calendar.google.com/public/basic.ics" target="_blank" onclick="if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'subscribe-B',title:'訂閱 B隊',event:true});" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
         <span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--teamB);display:inline-block;"></span> B隊 — 訂閱日曆
       </a>
-      <a href="https://calendar.google.com/calendar/ical/fcbf7a5aeff45a508ee125a37a74670ca47ba88ba34ccef576624336a020eb0e%40group.calendar.google.com/public/basic.ics" target="_blank" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
+      <a href="https://calendar.google.com/calendar/ical/fcbf7a5aeff45a508ee125a37a74670ca47ba88ba34ccef576624336a020eb0e%40group.calendar.google.com/public/basic.ics" target="_blank" onclick="if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'subscribe-C',title:'訂閱 C隊',event:true});" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-decoration:none;color:var(--text);font-weight:700;font-size:14px;">
         <span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--teamC);display:inline-block;"></span> C隊 — 訂閱日曆
       </a>
     </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin:26px 4px 14px;">
+    <div style="flex:1;height:1px;background:var(--border);"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;white-space:nowrap;">自訂生成日曆</div>
+    <div style="flex:1;height:1px;background:var(--border);"></div>
   </div>
 
   <div class="card" id="teamCard">
