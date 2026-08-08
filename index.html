@@ -54,7 +54,7 @@
     position: absolute;
     top: 2px;
     right: 2px;
-    display: none;
+    display: flex;
     align-items: center;
     gap: 8px;
     font-size: 10.5px;
@@ -66,7 +66,6 @@
     padding: 4px 10px;
     white-space: nowrap;
   }
-  .stats-badge.show { display: flex; }
   .eyebrow {
     font-size: 11px;
     font-weight: 700;
@@ -394,9 +393,19 @@
 <div class="container">
   <header class="no-print">
     <div class="stats-badge" id="statsBadge">
-      <span id="statViews">👀 --</span>
-      <span id="statDownloads">⬇️ --</span>
+      <span>👀</span><img src="https://rotatools.goatcounter.com/counter/%2F.svg?no_branding=1" alt="views" onerror="this.parentElement.style.display='none'" style="height:14px;">
+      <span>⬇️</span><img src="https://rotatools.goatcounter.com/counter/download.svg?no_branding=1" alt="downloads" onerror="this.parentElement.style.display='none'" style="height:14px;">
     </div>
+    <svg width="56" height="56" viewBox="0 0 380 380" style="display:block;margin:0 auto 10px;" role="img" aria-label="消防 Rota 日曆生成器 icon">
+      <rect x="90" y="90" width="200" height="200" rx="44" fill="#C8102E"/>
+      <rect x="150" y="128" width="12" height="26" rx="6" fill="#8a0f22"/>
+      <rect x="218" y="128" width="12" height="26" rx="6" fill="#8a0f22"/>
+      <rect x="130" y="140" width="120" height="112" rx="14" fill="#ffffff"/>
+      <path d="M130 168 a14 14 0 0 1 14 -14 h92 a14 14 0 0 1 14 14 v10 h-120 z" fill="#8a0f22"/>
+      <circle cx="160" cy="222" r="10" fill="#d7263d"/>
+      <circle cx="190" cy="222" r="10" fill="#1d6fb8"/>
+      <circle cx="220" cy="222" r="10" fill="#d4a017"/>
+    </svg>
     <h1>消防 Rota 日曆生成器</h1>
     <div class="subtitle">A / B / C 隊三日一轉 Rota Number 週期，離線單一檔案，自訂年份範圍即時生成 .ics</div>
     <div class="team-legend">
@@ -711,6 +720,7 @@ function generateAndDownload() {
       msgs.push(`${team}隊：已生成 ${events.length} 個 event（${startStr} 至 ${endStr}）${mySelection ? `，已標記「${mySelection}」之 Rota 日子` : ""}`);
       if (window.goatcounter && window.goatcounter.count) {
         window.goatcounter.count({ path: `generate-${team}`, title: `生成 ${team}隊`, event: true });
+        window.goatcounter.count({ path: `download`, title: `下載`, event: true });
       }
     });
     showStatus(msgs.join("\n"), false);
@@ -881,29 +891,6 @@ function downloadYearTablePDF() {
   setTimeout(() => window.print(), 80);
   setTimeout(() => { document.title = originalTitle; }, 15000);
 }
-
-// 讀取真實瀏覽/生成次數（GoatCounter公開counter端點，唔使API key）
-(function loadStatsBadge(){
-  const GC_BASE = "https://rotatools.goatcounter.com/counter/";
-  function fetchCount(path) {
-    return fetch(GC_BASE + encodeURIComponent(path) + ".json")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => d ? parseInt(String(d.count).replace(/,/g, ""), 10) || 0 : 0)
-      .catch(() => 0);
-  }
-  Promise.all([
-    fetchCount("/"),
-    fetchCount("generate-A"),
-    fetchCount("generate-B"),
-    fetchCount("generate-C")
-  ]).then(([views, gA, gB, gC]) => {
-    const badge = document.getElementById("statsBadge");
-    if (!badge) return;
-    document.getElementById("statViews").textContent = `👀 ${views}`;
-    document.getElementById("statDownloads").textContent = `⬇️ ${gA + gB + gC}`;
-    badge.classList.add("show");
-  }).catch(() => {});
-})();
 
 // 頁面載入時填滿 1a 至 9d 共36個選項
 (function populateMyNumberSelect(){
